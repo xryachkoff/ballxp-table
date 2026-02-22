@@ -91,7 +91,7 @@
     background: #16213e;
     padding: 3px 1px;
     min-width: 56px;
-    width: calc((100% - 60px) / 18);
+    width: calc((100% - 60px) / 19);
     cursor: pointer;
     user-select: none;
   }
@@ -658,6 +658,7 @@ const baseBalls = [
   {slug:"ghost",name:"Ghost",tier:"D"},
   {slug:"iron",name:"Iron",tier:"D"},
   {slug:"laser-horizontal",name:"Laser (H)",tier:"C"},
+  {slug:"laser-vertical",name:"Laser (V)",tier:"C"},
   {slug:"light",name:"Light",tier:"D"},
   {slug:"lightning",name:"Lightning",tier:"D"},
   {slug:"poison",name:"Poison",tier:"B"},
@@ -722,6 +723,10 @@ const evoMap = {
   "poison|ghost":{name:"Virus",slug:"virus",tier:"S",desc:"Infects enemies with a virus that spreads to nearby enemies on death, dealing poison and cell damage."},
   "charm|lightning":{name:"Lovestruck",slug:"lovestruck",tier:"C",desc:"Charms enemies with a burst of light, causing them to stand still and take increased damage for a short time."},
   "burn|stone":{name:"Brimstone",slug:"brimstone",tier:"C",desc:"Sets enemies on fire and poisons them. The combination deals damage over time from both sources."},
+  "cell|laser-vertical":{name:"Radiation Beam",slug:"radiation-beam",tier:"A",desc:"Fires a beam that irradiates enemies, causing them to take increasing damage over time from radiation."},
+  "freeze|laser-vertical":{name:"Freeze Ray",slug:"freeze-ray",tier:"B",desc:"Fires a freezing laser beam that slows and eventually freezes enemies solid."},
+  "laser-vertical|light":{name:"Laser Beam",slug:"laser-beam",tier:"C",desc:"Fires an enhanced vertical laser beam powered by light, dealing increased damage."},
+  "laser-vertical|poison":{name:"Radiation Beam",slug:"radiation-beam",tier:"A",desc:"Fires a beam that irradiates enemies, causing them to take increasing damage over time from radiation."},
 };
 
 // Super evolutions data
