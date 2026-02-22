@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ball x Pit - Evolution Table</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a1a2e;
+    color: #eee;
+    font-family: 'Press Start 2P', monospace;
+    overflow-x: auto;
+  }
+
+  h1 {
+    text-align: center;
+    padding: 12px 8px;
+    font-size: 14px;
+    color: #ffe5f9;
+    text-shadow: 0 0 10px rgba(255,100,200,0.4);
+    background: linear-gradient(180deg, #0f0f23, #1a1a2e);
+  }
+
+  h2 {
+    text-align: center;
+    padding: 16px 8px 8px;
+    font-size: 12px;
+    color: #ffe5f9;
+    text-shadow: 0 0 10px rgba(255,100,200,0.4);
+  }
+
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 6px 0 10px;
+    flex-wrap: wrap;
+    font-size: 8px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .legend-badge {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+  }
+
+  .table-wrap {
+    width: 100%;
+    overflow: auto;
+    padding: 0 4px 20px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 1100px;
+    table-layout: fixed;
+  }
+
+  th, td {
+    border: 1px solid #2a2a4a;
+    text-align: center;
+    vertical-align: middle;
+    padding: 2px;
+    position: relative;
+  }
+
+  /* Corner cell */
+  th.corner {
+    background: #0f0f23;
+    width: 60px;
+    min-width: 60px;
+  }
+
+  /* Header cells */
+  th.hdr {
+    background: #16213e;
+    padding: 3px 1px;
+    min-width: 56px;
+    width: calc((100% - 60px) / 18);
+    cursor: pointer;
+    user-select: none;
+  }
+  th.hdr:hover {
+    background: #1e2d52;
+  }
+  th.hdr img {
+    width: 36px;
+    height: 36px;
+    display: block;
+    margin: 0 auto 2px;
+    image-rendering: pixelated;
+  }
+  th.hdr .hdr-name {
+    font-size: 5px;
+    line-height: 1.2;
+    color: #aac;
+    word-break: break-word;
+  }
+
+  /* Data cells */
+  td.evo-cell {
+    background: #111128;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  td.evo-cell:hover {
+    background: #222250;
+    z-index: 10;
+  }
+  td.empty-cell {
+    background: #0c0c1e;
+  }
+  td.diagonal {
+    background: #0a0a18;
+  }
+
+  /* Cell content */
+  .cell-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+  .cell-content img {
+    width: 34px;
+    height: 34px;
+    display: block;
+    image-rendering: pixelated;
+  }
+  .cell-name {
+    font-size: 5px;
+    line-height: 1.1;
+    color: #ddd;
+    word-break: break-word;
+    max-width: 100%;
+  }
+
+  /* Tier badges */
+  .tier-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.6);
+    z-index: 2;
+    pointer-events: none;
+    line-height: 1;
+  }
+  .tier-badge-hdr {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 6px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.6);
+    z-index: 2;
+    pointer-events: none;
+    line-height: 1;
+  }
+  .tier-S { background: linear-gradient(135deg, #ff4444, #cc2200); }
+  .tier-A { background: linear-gradient(135deg, #ff8800, #cc6600); }
+  .tier-B { background: linear-gradient(135deg, #4488ff, #2266cc); }
+  .tier-C { background: linear-gradient(135deg, #44bb44, #228822); }
+  .tier-D { background: linear-gradient(135deg, #888, #555); }
+
+  /* Tier border colors for icons */
+  .tier-border-S { border: 2px solid #ff4444; }
+  .tier-border-A { border: 2px solid #ff8800; }
+  .tier-border-B { border: 2px solid #4488ff; }
+  .tier-border-C { border: 2px solid #44bb44; }
+  .tier-border-D { border: 2px solid #888; }
+
+  .img-wrap img {
+    border-radius: 4px;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e1e3e;
+    border: 2px solid #444;
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-width: 200px;
+    max-width: 280px;
+    z-index: 1000;
+    text-align: left;
+    pointer-events: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  }
+  td.evo-cell:hover .tooltip {
+    display: block;
+  }
+  .tooltip .tt-name {
+    font-size: 9px;
+    color: #ffe5f9;
+    margin-bottom: 4px;
+  }
+  .tooltip .tt-recipe {
+    font-size: 7px;
+    color: #aaa;
+    margin-bottom: 4px;
+  }
+  .tooltip .tt-desc {
+    font-size: 7px;
+    color: #ffc4c0;
+    line-height: 1.3;
+  }
+  .tooltip .tt-tier {
+    font-size: 7px;
+    margin-top: 3px;
+  }
+
+  /* Row header */
+  th.row-hdr {
+    background: #16213e;
+    min-width: 60px;
+    width: 60px;
+    padding: 2px;
+    cursor: pointer;
+    user-select: none;
+  }
+  th.row-hdr:hover {
+    background: #1e2d52;
+  }
+  th.row-hdr img {
+    width: 32px;
+    height: 32px;
+    display: block;
+    margin: 0 auto 1px;
+    image-rendering: pixelated;
+  }
+  th.row-hdr .hdr-name {
+    font-size: 5px;
+    line-height: 1.2;
+    color: #aac;
+    word-break: break-word;
+  }
+  .img-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  /* Row/Column highlighting */
+  .col-highlight {
+    background-color: rgba(100,150,255,0.15) !important;
+  }
+  .row-highlight td,
+  .row-highlight th.row-hdr {
+    background-color: rgba(100,150,255,0.15) !important;
+  }
+  th.hdr.col-active {
+    background-color: rgba(100,150,255,0.3) !important;
+  }
+  th.row-hdr.row-active {
+    background-color: rgba(100,150,255,0.3) !important;
+  }
+
+  /* === Super Evolutions Section === */
+  .super-evo-section {
+    padding: 10px 20px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .super-evo-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .super-evo-card {
+    background: #111128;
+    border: 1px solid #2a2a4a;
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .super-evo-card .se-icon {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .super-evo-card .se-icon img {
+    width: 48px;
+    height: 48px;
+    image-rendering: pixelated;
+    display: block;
+    border-radius: 4px;
+  }
+  .super-evo-card .se-icon .tier-badge {
+    width: 18px;
+    height: 18px;
+    font-size: 8px;
+  }
+
+  .super-evo-card .se-symbol {
+    font-size: 18px;
+    color: #ffe5f9;
+    flex-shrink: 0;
+    text-shadow: 0 0 6px rgba(255,100,200,0.4);
+  }
+
+  .super-evo-card .se-name {
+    font-size: 8px;
+    text-align: center;
+    color: #ddd;
+    margin-top: 2px;
+    max-width: 60px;
+    word-break: break-word;
+    line-height: 1.2;
+  }
+
+  .super-evo-card .se-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .super-evo-card .se-recipe {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .super-evo-card .se-desc {
+    display: none;
+    width: 100%;
+    font-size: 7px;
+    line-height: 1.4;
+    color: #ffc4c0;
+    text-align: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #2a2a4a;
+  }
+  .super-evo-card:hover .se-desc {
+    display: block;
+  }
+
+  /* === Passives Section === */
+  .passives-section {
+    padding: 10px 20px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .passive-tier-group {
+    margin-bottom: 16px;
+  }
+
+  .passive-tier-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid #2a2a4a;
+  }
+
+  .passive-tier-label {
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.6);
+    flex-shrink: 0;
+  }
+
+  .passive-tier-title {
+    font-size: 9px;
+    color: #aac;
+  }
+
+  .passive-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .passive-card {
+    background: #111128;
+    border: 1px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 8px;
+    width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+    cursor: default;
+  }
+  .passive-card:hover {
+    background: #1a1a3a;
+    z-index: 10;
+  }
+
+  .passive-card .p-icon {
+    position: relative;
+    display: inline-block;
+  }
+  .passive-card .p-icon img {
+    width: 48px;
+    height: 48px;
+    image-rendering: pixelated;
+    display: block;
+    border-radius: 4px;
+  }
+  .passive-card .p-icon .tier-badge {
+    width: 14px;
+    height: 14px;
+    font-size: 6px;
+  }
+
+  .passive-card .p-name {
+    font-size: 5px;
+    text-align: center;
+    color: #ddd;
+    word-break: break-word;
+    line-height: 1.2;
+    max-width: 72px;
+  }
+
+  .passive-card .p-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e1e3e;
+    border: 2px solid #444;
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-width: 200px;
+    max-width: 280px;
+    z-index: 1000;
+    text-align: left;
+    pointer-events: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  }
+  .passive-card:hover .p-tooltip {
+    display: block;
+  }
+  .passive-card .p-tooltip .tt-name {
+    font-size: 9px;
+    color: #ffe5f9;
+    margin-bottom: 4px;
+  }
+  .passive-card .p-tooltip .tt-desc {
+    font-size: 7px;
+    color: #ffc4c0;
+    line-height: 1.3;
+  }
+  .passive-card .p-tooltip .tt-recipe {
+    font-size: 7px;
+    color: #aaa;
+    margin-top: 4px;
+  }
+
+  /* Passive evo recipe cards */
+  .passive-evo-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .passive-evo-card {
+    background: #111128;
+    border: 1px solid #2a2a4a;
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .passive-evo-card .pe-recipe {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .passive-evo-card .pe-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .passive-evo-card .pe-icon {
+    position: relative;
+    display: inline-block;
+  }
+  .passive-evo-card .pe-icon img {
+    width: 48px;
+    height: 48px;
+    image-rendering: pixelated;
+    display: block;
+    border-radius: 4px;
+  }
+  .passive-evo-card .pe-icon .tier-badge {
+    width: 16px;
+    height: 16px;
+    font-size: 7px;
+  }
+
+  .passive-evo-card .pe-label {
+    font-size: 6px;
+    text-align: center;
+    color: #aac;
+    max-width: 70px;
+    word-break: break-word;
+    line-height: 1.2;
+  }
+
+  .passive-evo-card .pe-symbol {
+    font-size: 18px;
+    color: #ffe5f9;
+    flex-shrink: 0;
+    text-shadow: 0 0 6px rgba(255,100,200,0.4);
+  }
+
+  .passive-evo-card .pe-desc {
+    display: none;
+    width: 100%;
+    font-size: 7px;
+    line-height: 1.4;
+    color: #ffc4c0;
+    text-align: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #2a2a4a;
+  }
+  .passive-evo-card:hover .pe-desc {
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<h1>Ball x Pit - Evolution Table</h1>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-badge tier-S">S</div> S-Tier</div>
+  <div class="legend-item"><div class="legend-badge tier-A">A</div> A-Tier</div>
+  <div class="legend-item"><div class="legend-badge tier-B">B</div> B-Tier</div>
+  <div class="legend-item"><div class="legend-badge tier-C">C</div> C-Tier</div>
+  <div class="legend-item"><div class="legend-badge tier-D">D</div> D-Tier</div>
+</div>
+
+<div class="table-wrap">
+<table id="evoTable"></table>
+</div>
+
+<h2>Super Evolutions</h2>
+<div class="super-evo-section">
+  <div class="super-evo-cards" id="superEvoCards"></div>
+</div>
+
+<h2>Passive Evolutions</h2>
+<div class="passives-section">
+  <div class="passive-evo-cards" id="passiveEvoCards"></div>
+</div>
+
+<h2>Base Passives (by Tier)</h2>
+<div class="passives-section" id="basePassivesSection"></div>
+
+<script>
+const IMG = "https://static0.gamerantimages.com/wordpress/wp-content/uploads/2025/10/ball-x-pit-balls-";
+const IMG2 = "https://static0.gamerantimages.com/wordpress/wp-content/uploads/2026/01/ball-x-pit-balls-";
+
+// Slugs hosted at a different path
+const ALT_URL = {
+  "stone": IMG2 + "stone.png",
+  "catapult": IMG2 + "catapult.png",
+  "steel": IMG2 + "steel.png",
+  "banished-flame": IMG2 + "banished-flame-1.png",
+  "fireworks": IMG2 + "fireworks-1.png",
+  "brimstone": IMG2 + "brimstone-1.png",
+  "landslide": IMG2 + "landslide-1.png",
+  "laser-cutter": IMG2 + "laser-cutter-1.png",
+};
+
+function imgUrl(slug) {
+  return ALT_URL[slug] || (IMG + slug + ".png");
+}
+
+const TIER_BORDER = {
+  S: 'tier-border-S',
+  A: 'tier-border-A',
+  B: 'tier-border-B',
+  C: 'tier-border-C',
+  D: 'tier-border-D'
+};
+
+const baseBalls = [
+  {slug:"bleed",name:"Bleed",tier:"C"},
+  {slug:"brood-mother",name:"Brood Mother",tier:"C"},
+  {slug:"burn",name:"Burn",tier:"S"},
+  {slug:"cell",name:"Cell",tier:"B"},
+  {slug:"charm",name:"Charm",tier:"D"},
+  {slug:"dark",name:"Dark",tier:"C"},
+  {slug:"earthquake",name:"Earthquake",tier:"D"},
+  {slug:"egg-sac",name:"Egg Sac",tier:"C"},
+  {slug:"freeze",name:"Freeze",tier:"D"},
+  {slug:"ghost",name:"Ghost",tier:"D"},
+  {slug:"iron",name:"Iron",tier:"D"},
+  {slug:"laser-horizontal",name:"Laser (H)",tier:"C"},
+  {slug:"light",name:"Light",tier:"D"},
+  {slug:"lightning",name:"Lightning",tier:"D"},
+  {slug:"poison",name:"Poison",tier:"B"},
+  {slug:"stone",name:"Stone",tier:"D"},
+  {slug:"vampire",name:"Vampire",tier:"C"},
+  {slug:"wind",name:"Wind",tier:"D"}
+];
+
+// Evolution matrix: "slug1|slug2" -> {name, slug, tier, desc}
+const evoMap = {
+  "bleed|brood-mother":{name:"Leech",slug:"leech",tier:"A",desc:"Attaches up to 1 leech onto enemies it hits, which adds 2 stacks of bleed per second (max 24 stacks)."},
+  "bleed|charm":{name:"Berserk",slug:"berserk",tier:"S",desc:"Each hit has a 30% chance of causing enemies to go berserk for 6 seconds. Berserk enemies deal 15-24 damage to adjacent enemies every second."},
+  "bleed|dark":{name:"Sacrifice",slug:"sacrifice",tier:"B",desc:"Inflicts 4 stacks of bleed (max 15 stacks) and applies curse to hit enemies. Cursed enemies are dealt 50-100 after being hit 5 times."},
+  "bleed|iron":{name:"Hemorrhage",slug:"hemmorhage",tier:"S",desc:"Inflicts 3 stacks of bleed. When hitting an enemy with 12 stacks of bleed or more, it consumes all stacks of bleed to deal 20% of their current health."},
+  "bleed|vampire":{name:"Vampire Lord",slug:"vampire-lord",tier:"A",desc:"Inflicts 2 stacks of bleed (max 20 stacks) and heals for 8% of damage dealt. At max stacks, heal amount is doubled."},
+  "brood-mother|cell":{name:"Maggot",slug:"maggot",tier:"S",desc:"Spawns 1 maggot on hit that seeks enemies, dealing 4-8 damage per second for 5 seconds."},
+  "brood-mother|egg-sac":{name:"Spider Queen",slug:"spider-queen",tier:"S",desc:"Spawns 1 spider on hit that chases enemies, dealing damage and applying slow. Spiders last 8 seconds."},
+  "brood-mother|vampire":{name:"Mosquito King",slug:"mosquito-king",tier:"S",desc:"Spawns 1 mosquito on hit that latches onto enemies, draining health over time and healing the player."},
+  "burn|dark":{name:"Banished Flame",slug:"banished-flame",tier:"B",desc:"Sets enemies on fire for 3 seconds. Burning enemies that die release a dark explosion dealing area damage."},
+  "burn|earthquake":{name:"Magma",slug:"magma",tier:"S",desc:"Burns the ground on impact, creating a magma pool that deals continuous damage to enemies standing in it."},
+  "burn|egg-sac":{name:"Fireworks",slug:"fireworks",tier:"C",desc:"Explodes on impact, releasing burning projectiles in random directions that deal fire damage."},
+  "burn|freeze":{name:"Frozen Flame",slug:"frozen-flame",tier:"S",desc:"Alternates between fire and ice damage. Fire burns enemies; ice freezes them. Combines both effects."},
+  "burn|iron":{name:"Bomb",slug:"bomb",tier:"A",desc:"Explodes on impact dealing heavy area damage. Higher damage in the center of the explosion."},
+  "burn|light":{name:"Sun",slug:"sun",tier:"S",desc:"Creates a miniature sun that orbits the play area, dealing continuous fire and light damage to nearby enemies."},
+  "burn|poison":{name:"Brimstone",slug:"brimstone",tier:"C",desc:"Sets enemies on fire and poisons them. The combination deals damage over time from both sources."},
+  "burn|wind":{name:"Inferno",slug:"inferno",tier:"S",desc:"Creates a fire tornado that moves across the field, pulling in and burning enemies caught in its path."},
+  "burn|charm":{name:"Berserk",slug:"berserk",tier:"S",desc:"Each hit has a 30% chance of causing enemies to go berserk for 6 seconds. Berserk enemies deal 15-24 damage to adjacent enemies every second."},
+  "cell|earthquake":{name:"Overgrowth",slug:"overgrowth",tier:"A",desc:"On hit, creates a zone of overgrowth that slows enemies and deals damage over time as roots entangle them."},
+  "cell|egg-sac":{name:"Voluptuous Egg Sac",slug:"voluptuous-egg-sac",tier:"B",desc:"Spawns a large egg sac on impact that periodically releases cell organisms dealing area damage."},
+  "cell|laser-horizontal":{name:"Radiation Beam",slug:"radiation-beam",tier:"A",desc:"Fires a beam that irradiates enemies, causing them to take increasing damage over time from radiation."},
+  "cell|poison":{name:"Virus",slug:"virus",tier:"S",desc:"Infects enemies with a virus that spreads to nearby enemies on death, dealing poison and cell damage."},
+  "charm|dark":{name:"Incubus",slug:"incubus",tier:"B",desc:"Charms enemies into fighting for you while draining their life force. Charmed enemies deal dark damage to allies."},
+  "charm|light":{name:"Lovestruck",slug:"lovestruck",tier:"C",desc:"Charms enemies with a burst of light, causing them to stand still and take increased damage for a short time."},
+  "charm|vampire":{name:"Succubus",slug:"succubus",tier:"D",desc:"Seduces enemies, causing them to move toward the ball and take vampire damage on contact."},
+  "dark|ghost":{name:"Phantom",slug:"phantom",tier:"B",desc:"Phases through enemies, dealing dark damage. Has a chance to fear enemies, causing them to flee."},
+  "dark|iron":{name:"Assassin",slug:"assassin",tier:"A",desc:"Deals massive bonus damage to enemies below 30% health. Kills have a chance to reset cooldown."},
+  "dark|light":{name:"Flicker",slug:"flicker",tier:"C",desc:"Rapidly alternates between light and dark, dealing both types of damage and briefly stunning enemies."},
+  "dark|wind":{name:"Noxious",slug:"noxious",tier:"A",desc:"Creates a cloud of dark wind that poisons and damages enemies passing through it."},
+  "dark|vampire":{name:"Vampire Lord",slug:"vampire-lord",tier:"A",desc:"Inflicts 2 stacks of bleed (max 20 stacks) and heals for 8% of damage dealt. At max stacks, heal amount is doubled."},
+  "earthquake|freeze":{name:"Glacier",slug:"glacier",tier:"S",desc:"Creates icy terrain that slows and damages enemies. Frozen enemies take bonus earthquake damage."},
+  "earthquake|poison":{name:"Swamp",slug:"swamp",tier:"S",desc:"Creates a poisonous swamp zone that slows enemies and deals continuous poison damage."},
+  "earthquake|stone":{name:"Landslide",slug:"landslide",tier:"C",desc:"Triggers a cascade of rocks that roll across the field, dealing heavy physical damage to enemies in their path."},
+  "earthquake|wind":{name:"Sandstorm",slug:"sandstorm",tier:"A",desc:"Creates a sandstorm that reduces enemy visibility and accuracy while dealing continuous damage."},
+  "egg-sac|iron":{name:"Shotgun",slug:"shotgun",tier:"C",desc:"Fires a spread of iron pellets on impact, dealing damage in a cone. Closer enemies take more hits."},
+  "egg-sac|stone":{name:"Catapult",slug:"catapult",tier:"D",desc:"Launches a stone projectile that splits into smaller rocks on impact, dealing area damage."},
+  "egg-sac|vampire":{name:"Mosquito Swarm",slug:"mosquito-swarm",tier:"A",desc:"Releases a swarm of mosquitoes that drain health from multiple enemies simultaneously."},
+  "freeze|ghost":{name:"Wraith",slug:"wraith",tier:"D",desc:"A ghostly freeze attack that chills enemies and has a chance to phase through walls."},
+  "freeze|laser-horizontal":{name:"Freeze Ray",slug:"freeze-ray",tier:"B",desc:"Fires a freezing laser beam that slows and eventually freezes enemies solid."},
+  "freeze|lightning":{name:"Blizzard",slug:"blizzard",tier:"A",desc:"Creates a blizzard that freezes and electrifies enemies, dealing ice and lightning damage."},
+  "freeze|wind":{name:"Blizzard",slug:"blizzard",tier:"A",desc:"Creates a blizzard that freezes and electrifies enemies, dealing ice and lightning damage."},
+  "ghost|iron":{name:"Assassin",slug:"assassin",tier:"A",desc:"Deals massive bonus damage to enemies below 30% health. Kills have a chance to reset cooldown."},
+  "ghost|vampire":{name:"Soul Sucker",slug:"soul-sucker",tier:"C",desc:"Drains the soul of enemies, dealing ghost damage and healing the player for a portion of damage dealt."},
+  "iron|lightning":{name:"Lightning Rod",slug:"lightning-rod",tier:"A",desc:"Attracts lightning strikes to enemies near the ball, dealing heavy electrical damage in an area."},
+  "iron|stone":{name:"Steel",slug:"steel",tier:"D",desc:"A heavy, durable ball that deals increased physical damage and has higher knockback."},
+  "laser-horizontal|laser-vertical":{name:"Holy Laser",slug:"holy-laser",tier:"B",desc:"Fires lasers in both horizontal and vertical directions simultaneously, creating a cross of light damage."},
+  "laser-horizontal|light":{name:"Laser Beam",slug:"laser-beam",tier:"C",desc:"Fires an enhanced horizontal laser beam powered by light, dealing increased damage."},
+  "laser-horizontal|poison":{name:"Radiation Beam",slug:"radiation-beam",tier:"A",desc:"Fires a beam that irradiates enemies, causing them to take increasing damage over time from radiation."},
+  "light|lightning":{name:"Flash",slug:"flash",tier:"B",desc:"A blinding flash that stuns enemies and deals light and lightning damage in a burst."},
+  "lightning|wind":{name:"Storm",slug:"storm",tier:"D",desc:"Creates a storm that deals lightning and wind damage to all enemies in a large area."},
+  "poison|wind":{name:"Noxious",slug:"noxious",tier:"A",desc:"Creates a cloud of dark wind that poisons and damages enemies passing through it."},
+  "poison|cell":{name:"Virus",slug:"virus",tier:"S",desc:"Infects enemies with a virus that spreads to nearby enemies on death, dealing poison and cell damage."},
+  "poison|ghost":{name:"Virus",slug:"virus",tier:"S",desc:"Infects enemies with a virus that spreads to nearby enemies on death, dealing poison and cell damage."},
+  "charm|lightning":{name:"Lovestruck",slug:"lovestruck",tier:"C",desc:"Charms enemies with a burst of light, causing them to stand still and take increased damage for a short time."},
+  "burn|stone":{name:"Brimstone",slug:"brimstone",tier:"C",desc:"Sets enemies on fire and poisons them. The combination deals damage over time from both sources."},
+};
+
+// Super evolutions data
+const superEvos = [
+  {
+    name: "Satan", slug: "satan", tier: "S",
+    desc: "Summons demonic fire that deals massive area damage and causes enemies to fight each other in a frenzy of chaos.",
+    ingredients: [
+      {name: "Incubus", slug: "incubus", tier: "B"},
+      {name: "Succubus", slug: "succubus", tier: "D"}
+    ]
+  },
+  {
+    name: "Nuclear Bomb", slug: "nuclear-bomb", tier: "S",
+    desc: "Creates a devastating nuclear explosion on impact, dealing extreme area damage and leaving behind a radioactive zone that poisons survivors.",
+    ingredients: [
+      {name: "Bomb", slug: "bomb", tier: "A"},
+      {name: "Poison", slug: "poison", tier: "B"}
+    ]
+  },
+  {
+    name: "Black Hole", slug: "black-hole", tier: "B",
+    desc: "Generates a gravitational singularity that pulls in all nearby enemies, crushing them with immense dark energy damage.",
+    ingredients: [
+      {name: "Sun", slug: "sun", tier: "S"},
+      {name: "Dark", slug: "dark", tier: "C"}
+    ]
+  },
+  {
+    name: "Nosferatu", slug: "nosferatu", tier: "B",
+    desc: "An ancient vampire lord that summons spiders and mosquitoes while draining life from all enemies in range. Heals massively on kills.",
+    ingredients: [
+      {name: "Vampire Lord", slug: "vampire-lord", tier: "A"},
+      {name: "Spider Queen", slug: "spider-queen", tier: "S"},
+      {name: "Mosquito King", slug: "mosquito-king", tier: "S"}
+    ]
+  },
+  {
+    name: "Laser Cutter", slug: "laser-cutter", tier: "A",
+    desc: "Fires a precision steel-reinforced laser that cuts through all enemies in a line, dealing high sustained damage with armor penetration.",
+    ingredients: [
+      {name: "Steel", slug: "steel", tier: "D"},
+      {name: "Laser (H)", slug: "laser-horizontal", tier: "C"}
+    ]
+  }
+];
+
+// Build symmetric lookup
+function getEvo(s1, s2) {
+  return evoMap[s1+"|"+s2] || evoMap[s2+"|"+s1] || null;
+}
+
+function tierBorderClass(tier) {
+  return TIER_BORDER[tier] || '';
+}
+
+// ===== Build main table =====
+const table = document.getElementById("evoTable");
+
+// Header row
+let headerRow = "<tr><th class='corner'></th>";
+for (let c = 0; c < baseBalls.length; c++) {
+  const b = baseBalls[c];
+  headerRow += `<th class='hdr' data-col='${c}'>
+    <div class='img-wrap'>
+      <img src="${imgUrl(b.slug)}" alt="${b.name}" loading="lazy" class="${tierBorderClass(b.tier)}">
+      <span class="tier-badge-hdr tier-${b.tier}">${b.tier}</span>
+    </div>
+    <div class='hdr-name'>${b.name}</div>
+  </th>`;
+}
+headerRow += "</tr>";
+table.innerHTML = headerRow;
+
+// Data rows
+for (let r = 0; r < baseBalls.length; r++) {
+  const rowBall = baseBalls[r];
+  let row = `<th class='row-hdr' data-row='${r}'>
+    <div class='img-wrap'>
+      <img src="${imgUrl(rowBall.slug)}" alt="${rowBall.name}" loading="lazy" class="${tierBorderClass(rowBall.tier)}">
+      <span class="tier-badge-hdr tier-${rowBall.tier}">${rowBall.tier}</span>
+    </div>
+    <div class='hdr-name'>${rowBall.name}</div>
+  </th>`;
+
+  for (let c = 0; c < baseBalls.length; c++) {
+    const colBall = baseBalls[c];
+    if (r === c) {
+      row += `<td class='diagonal' data-col='${c}'></td>`;
+      continue;
+    }
+    const evo = getEvo(rowBall.slug, colBall.slug);
+    if (evo) {
+      row += `<td class='evo-cell' data-col='${c}'>
+        <div class='cell-content'>
+          <div class='img-wrap'>
+            <img src="${imgUrl(evo.slug)}" alt="${evo.name}" loading="lazy" class="${tierBorderClass(evo.tier)}">
+            <span class="tier-badge tier-${evo.tier}">${evo.tier}</span>
+          </div>
+          <div class='cell-name'>${evo.name}</div>
+        </div>
+        <div class='tooltip'>
+          <div class='tt-name'>${evo.name}</div>
+          <div class='tt-recipe'>${rowBall.name} x ${colBall.name}</div>
+          <div class='tt-desc'>${evo.desc}</div>
+          <div class='tt-tier'>Tier: <span class='tier-badge tier-${evo.tier}' style='position:static;display:inline-flex;width:auto;height:auto;padding:1px 4px;'>${evo.tier}</span></div>
+        </div>
+      </td>`;
+    } else {
+      row += `<td class='empty-cell' data-col='${c}'></td>`;
+    }
+  }
+  table.innerHTML += "<tr data-row='" + r + "'>" + row + "</tr>";
+}
+
+// ===== Build super evolutions cards =====
+const superContainer = document.getElementById("superEvoCards");
+
+for (const se of superEvos) {
+  let ingredientsHTML = '';
+  for (let i = 0; i < se.ingredients.length; i++) {
+    const ing = se.ingredients[i];
+    if (i > 0) {
+      ingredientsHTML += `<span class="se-symbol">+</span>`;
+    }
+    ingredientsHTML += `
+      <div class="se-item">
+        <div class="se-icon">
+          <img src="${imgUrl(ing.slug)}" alt="${ing.name}" class="${tierBorderClass(ing.tier)}">
+          <span class="tier-badge tier-${ing.tier}">${ing.tier}</span>
+        </div>
+        <div class="se-name">${ing.name}</div>
+      </div>`;
+  }
+
+  const card = document.createElement('div');
+  card.className = 'super-evo-card';
+  card.innerHTML = `
+    <div class="se-recipe">
+      ${ingredientsHTML}
+      <span class="se-symbol">=</span>
+      <div class="se-item">
+        <div class="se-icon">
+          <img src="${imgUrl(se.slug)}" alt="${se.name}" class="${tierBorderClass(se.tier)}">
+          <span class="tier-badge tier-${se.tier}">${se.tier}</span>
+        </div>
+        <div class="se-name">${se.name}</div>
+      </div>
+    </div>
+    <div class="se-desc">${se.desc}</div>
+  `;
+  superContainer.appendChild(card);
+}
+
+// ===== Passive icons from wiki.gg =====
+const WIKI_IMG = "https://ballxpit.wiki.gg/images/thumb/";
+function passiveIcon(name) {
+  const slug = name.replace(/'/g, "%27").replace(/ /g, "_");
+  return WIKI_IMG + slug + ".png/108px-" + slug + ".png";
+}
+
+// ===== Passive Evolutions data =====
+const passiveEvos = [
+  {
+    name: "Phantom Regalia", tier: "S",
+    desc: "Balls go through enemies until they hit the back wall. Balls deal 50% more damage when going through enemies.",
+    ingredients: [{name:"Ghostly Corset",tier:"A"}, {name:"Ethereal Cloak",tier:"S"}]
+  },
+  {
+    name: "Deadeye's Cross", tier: "S",
+    desc: "Increase critical hit chance by 60%.",
+    ingredients: [{name:"Diamond Hilted Dagger",tier:"C"}, {name:"Sapphire Hilted Dagger",tier:"C"}, {name:"Ruby Hilted Dagger",tier:"C"}, {name:"Emerald Hilted Dagger",tier:"C"}]
+  },
+  {
+    name: "Deadeye's Impaler", tier: "S",
+    desc: "5% crit chance; critical hits instantly kill non-boss enemies.",
+    ingredients: [{name:"Deadeye's Cross",tier:"S"}, {name:"Gracious Impaler",tier:"B"}]
+  },
+  {
+    name: "Grotesque Artillery", tier: "S",
+    desc: "Shoots a random level 1 special ball at enemies every 8.0 seconds.",
+    ingredients: [{name:"Hand Fan",tier:"B"}, {name:"Turret",tier:"A"}]
+  },
+  {
+    name: "Soul Reaver", tier: "A",
+    desc: "Each kill heals you by 1, and you can heal past your max health at 30% efficiency.",
+    ingredients: [{name:"Vampiric Sword",tier:"A"}, {name:"Everflowing Goblet",tier:"C"}]
+  },
+  {
+    name: "Wings of the Anointed", tier: "A",
+    desc: "Balls move 40% faster, and you move 20% faster. You are no longer affected by environmental hazards on the ground.",
+    ingredients: [{name:"Radiant Feather",tier:"B"}, {name:"Fleet Feet",tier:"B"}]
+  },
+  {
+    name: "Cornucopia", tier: "A",
+    desc: "Each time baby balls are created, spawn 0-1 additional baby balls.",
+    ingredients: [{name:"Baby Rattle",tier:"A"}, {name:"War Horn",tier:"A"}]
+  },
+  {
+    name: "Odiferous Shell", tier: "A",
+    desc: "When you touch enemies, they have a 50% chance of instantly dying.",
+    ingredients: [{name:"Wretched Onion",tier:"C"}, {name:"Breastplate",tier:"C"}]
+  },
+  {
+    name: "Gracious Impaler", tier: "B",
+    desc: "Critical hits have 5% chance to instantly kill enemies.",
+    ingredients: [{name:"Reacher's Spear",tier:"B"}, {name:"Deadeye's Amulet",tier:"B"}]
+  },
+  {
+    name: "Tormenters Mask", tier: "B",
+    desc: "Enemies have a 10% chance of dying immediately the first time they detect you.",
+    ingredients: [{name:"Spiked Collar",tier:"C"}, {name:"Crown of Thorns",tier:"C"}]
+  }
+];
+
+// Build passive evo cards with real icons
+const passiveContainer = document.getElementById("passiveEvoCards");
+
+for (const pe of passiveEvos) {
+  let ingredientsHTML = '';
+  for (let i = 0; i < pe.ingredients.length; i++) {
+    const ing = pe.ingredients[i];
+    if (i > 0) {
+      ingredientsHTML += '<span class="pe-symbol">+</span>';
+    }
+    ingredientsHTML += `
+      <div class="pe-item">
+        <div class="pe-icon">
+          <img src="${passiveIcon(ing.name)}" alt="${ing.name}" class="${tierBorderClass(ing.tier)}">
+          <span class="tier-badge tier-${ing.tier}">${ing.tier}</span>
+        </div>
+        <div class="pe-label">${ing.name}</div>
+      </div>`;
+  }
+
+  const card = document.createElement('div');
+  card.className = 'passive-evo-card';
+  card.innerHTML = `
+    <div class="pe-recipe">
+      ${ingredientsHTML}
+      <span class="pe-symbol">=</span>
+      <div class="pe-item">
+        <div class="pe-icon">
+          <img src="${passiveIcon(pe.name)}" alt="${pe.name}" class="${tierBorderClass(pe.tier)}">
+          <span class="tier-badge tier-${pe.tier}">${pe.tier}</span>
+        </div>
+        <div class="pe-label">${pe.name}</div>
+      </div>
+    </div>
+    <div class="pe-desc">${pe.desc}</div>
+  `;
+  passiveContainer.appendChild(card);
+}
+
+// ===== Base Passives by Tier =====
+const basePassives = [
+  // S-Tier
+  {name:"Ethereal Cloak",tier:"S",desc:"Balls go through enemies and deal 25% bonus damage until they hit the back of the field."},
+  // A-Tier
+  {name:"Iron Onesie",tier:"A",desc:"Balls deal 0.5% more damage for each baby ball you have."},
+  {name:"Baby Rattle",tier:"A",desc:"Gain 1.5x baby balls, but your aim becomes scattered."},
+  {name:"War Horn",tier:"A",desc:"All baby balls deal 20% more damage."},
+  {name:"Wagon Wheel",tier:"A",desc:"Each time a ball hits a wall, it deals 30% extra damage on the next hit."},
+  {name:"Ghostly Corset",tier:"A",desc:"Balls go through enemies and deal 20% bonus damage when hitting them from the side."},
+  {name:"Turret",tier:"A",desc:"Floats around your character and shoots a baby ball at enemies every 2.0 seconds."},
+  {name:"Vampiric Sword",tier:"A",desc:"Each kill heals you by 5, but each shot you take deals 2 damage to you."},
+  // B-Tier
+  {name:"Slingshot",tier:"B",desc:"25% chance to launch a baby ball when you pick up a gem."},
+  {name:"Archer's Effigy",tier:"B",desc:"Every 7-12 rows, spawn a stone archer with 160 health on your side that shoots arrows dealing 10-20 damage."},
+  {name:"Stone Effigy",tier:"B",desc:"Every 7-12 rows, spawn a stone soldier with 200 health that blocks and attacks enemies."},
+  {name:"Healer's Effigy",tier:"B",desc:"Every 7-12 rows, spawn a stone healer with 100 health that heals you 10 health per minute."},
+  {name:"Artificial Heart",tier:"B",desc:"Friendly pieces gain 100% more health."},
+  {name:"Radiant Feather",tier:"B",desc:"Increase ball launch speed by 20%, but get knocked back a little each time you shoot."},
+  {name:"Fleet Feet",tier:"B",desc:"Increase movement speed by 10% and move at full speed while shooting."},
+  {name:"Hand Fan",tier:"B",desc:"Slow down enemies in the same column as you by 50%."},
+  {name:"Reacher's Spear",tier:"B",desc:"Increase crit chance to 20% when hitting enemies in the same column as you."},
+  {name:"Deadeye's Amulet",tier:"B",desc:"Critical hits deal 10-15 bonus damage."},
+  {name:"Rubber Headband",tier:"B",desc:"Balls start off at 70% speed but increase by 20% each bounce (max 200%)."},
+  {name:"Midnight Oil",tier:"B",desc:"Balls that hit flaming enemies light on fire and deal 10-20 bonus fire damage on the next hit."},
+  {name:"Pressure Valve",tier:"B",desc:"Enemies explode on death, dealing 20-30 damage to adjacent enemies."},
+  {name:"Hand Mirror",tier:"B",desc:"Projectiles have 50% chance to reflect upon hitting you, dealing 20-40 damage if they hit an enemy."},
+  {name:"Magic Staff",tier:"B",desc:"Increase area-of-effect damage by 20%."},
+  {name:"Golden Bull",tier:"B",desc:"Every 7-11 rows, spawn a golden bull with 400 health that accrues 10 gold per minute."},
+  {name:"Gemspring",tier:"B",desc:"Every 7-11 rows, spawn a Gemspring that drops increasing amounts of XP when damaged."},
+  {name:"Silver Bullet",tier:"B",desc:"Balls deal 20% bonus damage until they hit a wall."},
+  // C-Tier
+  {name:"Breastplate",tier:"C",desc:"Decrease damage taken by 10%."},
+  {name:"Dynamite",tier:"C",desc:"Every 5-10 rows, spawn an enemy with dynamite. Destroying them deals 200-500 damage to nearby enemies."},
+  {name:"Lover's Quiver",tier:"C",desc:"Projectiles have a 40% chance to heal you for 1 health instead of hurting you."},
+  {name:"Hourglass",tier:"C",desc:"Balls deal 150% damage, but damage decays by 30% each bounce (min 50%)."},
+  {name:"Wretched Onion",tier:"C",desc:"Deal 6-12 damage per second to enemies within 2 tiles."},
+  {name:"Spiked Collar",tier:"C",desc:"Deal 30-50 damage to enemies the first time you get into their melee attack range."},
+  {name:"Crown of Thorns",tier:"C",desc:"Destroy the 2 nearest enemies when you are hit from close range."},
+  {name:"Everflowing Goblet",tier:"C",desc:"You can heal past your max health at 20% efficiency."},
+  {name:"Diamond Hilted Dagger",tier:"C",desc:"Increase crit chance to 20% when hitting enemies in the front."},
+  {name:"Emerald Hilted Dagger",tier:"C",desc:"Increase crit chance to 20% when hitting enemies on their right side."},
+  {name:"Ruby Hilted Dagger",tier:"C",desc:"Increase crit chance to 15% when hitting enemies in the back."},
+  {name:"Sapphire Hilted Dagger",tier:"C",desc:"Increase crit chance to 30% when hitting enemies on their left side."},
+  {name:"Upturned Hatchet",tier:"C",desc:"Balls deal 80% more damage after hitting the back of the field, otherwise damage is reduced by 20%."},
+  {name:"Frozen Spike",tier:"C",desc:"When an enemy is frozen, they emit a chill to nearby enemies that deals 10-20 damage."},
+  {name:"Bottled Tornado",tier:"C",desc:"When you catch a special ball, automatically shoot 1-3 new baby balls in random directions."},
+  {name:"Cursed Elixir",tier:"C",desc:"When a poisoned enemy dies, 10% chance for them to come back as a zombie with 240 health."},
+  {name:"Shortbow",tier:"C",desc:"Increases fire rate by 15%."},
+  // D-Tier
+  {name:"Eye of the Beholder",tier:"D",desc:"10% chance to dodge incoming attacks."},
+  {name:"Magnet",tier:"D",desc:"Increase range at which you pick up items and catch balls by 1.0 tiles."},
+  {name:"Protective Charm",tier:"D",desc:"Gain a shield that blocks the next damage you would receive. Recharges after 60 seconds."},
+  {name:"Bandage Roll",tier:"D",desc:"Shoot 1-2 baby balls each time you're healed."},
+  {name:"Kiss of Death",tier:"D",desc:"Charmed enemies have 10% chance of dying after recovering."},
+  {name:"Voodoo Doll",tier:"D",desc:"Curse has a 10% chance of killing enemies."},
+  {name:"Silver Blindfold",tier:"D",desc:"Increases crit chance to 20% when hitting blinded enemies."},
+  {name:"Ghostly Shield",tier:"D",desc:"Balls go through allies and heal them 2 health."},
+  {name:"Traitor's Cowl",tier:"D",desc:"Stone allies can now be damaged by your balls, but you heal 2 health when a ball hits one."}
+];
+
+// Build base passives grid by tier
+const bpSection = document.getElementById("basePassivesSection");
+const tiers = ["S","A","B","C","D"];
+const tierNames = {S:"S-Tier",A:"A-Tier",B:"B-Tier",C:"C-Tier",D:"D-Tier"};
+
+for (const t of tiers) {
+  const items = basePassives.filter(p => p.tier === t);
+  if (items.length === 0) continue;
+
+  const group = document.createElement('div');
+  group.className = 'passive-tier-group';
+  group.innerHTML = `
+    <div class="passive-tier-header">
+      <div class="passive-tier-label tier-${t}">${t}</div>
+      <div class="passive-tier-title">${tierNames[t]} (${items.length})</div>
+    </div>
+  `;
+
+  const grid = document.createElement('div');
+  grid.className = 'passive-grid';
+
+  for (const p of items) {
+    const card = document.createElement('div');
+    card.className = 'passive-card';
+    card.innerHTML = `
+      <div class="p-icon">
+        <img src="${passiveIcon(p.name)}" alt="${p.name}" class="${tierBorderClass(p.tier)}">
+        <span class="tier-badge tier-${p.tier}">${p.tier}</span>
+      </div>
+      <div class="p-name">${p.name}</div>
+      <div class="p-tooltip">
+        <div class="tt-name">${p.name}</div>
+        <div class="tt-desc">${p.desc}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  }
+
+  group.appendChild(grid);
+  bpSection.appendChild(group);
+}
+
+// ===== Row/Column highlighting =====
+const highlightedCols = new Set();
+const highlightedRows = new Set();
+
+// Column header click
+document.querySelectorAll('#evoTable th.hdr').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.getAttribute('data-col');
+    if (col === null) return;
+    if (highlightedCols.has(col)) {
+      highlightedCols.delete(col);
+      th.classList.remove('col-active');
+      document.querySelectorAll(`#evoTable td[data-col='${col}'], #evoTable th.hdr[data-col='${col}']`).forEach(el => {
+        el.classList.remove('col-highlight');
+      });
+    } else {
+      highlightedCols.add(col);
+      th.classList.add('col-active');
+      document.querySelectorAll(`#evoTable td[data-col='${col}']`).forEach(el => {
+        el.classList.add('col-highlight');
+      });
+    }
+  });
+});
+
+// Row header click
+document.querySelectorAll('#evoTable th.row-hdr').forEach(th => {
+  th.addEventListener('click', () => {
+    const row = th.getAttribute('data-row');
+    if (row === null) return;
+    const tr = th.closest('tr');
+    if (highlightedRows.has(row)) {
+      highlightedRows.delete(row);
+      th.classList.remove('row-active');
+      tr.classList.remove('row-highlight');
+    } else {
+      highlightedRows.add(row);
+      th.classList.add('row-active');
+      tr.classList.add('row-highlight');
+    }
+  });
+});
+</script>
+
+</body>
+</html>
