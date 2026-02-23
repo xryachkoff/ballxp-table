@@ -291,6 +291,24 @@
     background-color: rgba(100,150,255,0.3) !important;
   }
 
+  .reset-btn {
+    display: inline-block;
+    margin: 0 0 8px 4px;
+    padding: 5px 12px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: #aac;
+    background: #16213e;
+    border: 1px solid #2a2a4a;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .reset-btn:hover {
+    background: #2a2a5a;
+    color: #fff;
+  }
+
   /* === Super Evolutions Section === */
   .super-evo-section {
     padding: 10px 20px 40px;
@@ -600,6 +618,9 @@
   <div class="legend-item"><div class="legend-badge tier-D">D</div> D-Tier</div>
 </div>
 
+<div style="padding: 0 4px;">
+  <button class="reset-btn" id="resetHighlight">Reset highlight</button>
+</div>
 <div class="table-wrap">
 <table id="evoTable"></table>
 </div>
@@ -1125,6 +1146,16 @@ document.querySelectorAll('#evoTable th.row-hdr').forEach(th => {
       tr.classList.add('row-highlight');
     }
   });
+});
+
+// Reset button
+document.getElementById('resetHighlight').addEventListener('click', () => {
+  document.querySelectorAll('#evoTable .col-highlight').forEach(el => el.classList.remove('col-highlight'));
+  document.querySelectorAll('#evoTable .col-active').forEach(el => el.classList.remove('col-active'));
+  document.querySelectorAll('#evoTable .row-highlight').forEach(el => el.classList.remove('row-highlight'));
+  document.querySelectorAll('#evoTable .row-active').forEach(el => el.classList.remove('row-active'));
+  highlightedCols.clear();
+  highlightedRows.clear();
 });
 </script>
 
